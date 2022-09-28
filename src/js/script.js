@@ -7,7 +7,8 @@
   const qS = (elemento) => document.querySelector(elemento);
   const qSAll = (elemento) => document.querySelectorAll(elemento);
 
-// Listando (Mapeando) as Pizzas
+// **** LISTANDO (Mapeando) AS PIZZAS ****
+
 // Recebendo 2 parâmetros
 //  1º - O próprio item (Cada Pizza)
 //  2º - Index, ou seja, o número no array referente ao item específico
@@ -82,7 +83,8 @@
       });
 
 
-// Abrindo o modal
+// **** EVENTO DE CLIQUE PARA ABRIR O MODAL ****
+
 // Sempre que abrir o modal irá deixar a quantidade como 1
 // Irá em quantidade e colocará modalQt, ou seja, a quantidade padrão que tem na pizza
       qS('.pizzaInfo--qt').innerHTML = modalQt;
@@ -99,4 +101,21 @@
 
 // append, pega o conteúdo que já existe em pizza area e vai adicionar mais um conteúdo, e como parâmetro eu irei colocar o elemento que eu quero adicionar que nesse caso é o pizzaItem
     qS('.pizza-area').append( pizzaItem );
+  });
+
+
+// **** EVENTOS DO PRÓPRIO MODAL ****
+
+// Como o cancelar não é um botão, eu não irei indicar nenhum tipo de parâmetro, eu simplemente crio uma função e ela fechará o modal
+  function closeModal() {
+      qS('.pizzaWindowArea').style.opacity = 0;
+      
+      setTimeout(() => {
+        qS('.pizzaWindowArea').style.display = 'none';
+      }, 500)
+  }
+// forEach, para cada um deles eu irei executar uma função
+  qSAll('.pizzaInfo--cancelButton, .pizzaInfo--cancelMobileButton').forEach((item) => {
+// Recebendo o próprio item e adicionando o clique
+      item.addEventListener('click', closeModal);
   });
