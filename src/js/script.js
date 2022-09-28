@@ -119,3 +119,6 @@
 // Recebendo o próprio item e adicionando o clique
       item.addEventListener('click', closeModal);
   });
+
+// **** BOTÕES - (DIMINUIR QUANTIDADE) E + (AUMENTAR QUANTIDADE) DO MODAL ****
+
