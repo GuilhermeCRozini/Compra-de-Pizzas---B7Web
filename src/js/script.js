@@ -188,16 +188,69 @@ qS('.pizzaInfo--addButton').addEventListener('click', () => {
    */
 
   // Size está como string, então vou transformá-lo em um inteiro
-  let size = parseInt(qS('.pizzaInfo--size.selected').getAttribute)('data-key')
+  let size = parseInt(qS('.pizzaInfo--size.selected').getAttribute('data-key'))
 
-  // Adicionando ao Array do carrinho
-  cart.push({
-    // Pegando o id no PizzaJson a que está no modalKey
-    id: pizzaJson[modalKey].id,
-    // Posso colocar size: size ou simplesmente size
-    size,
-    qt: modalQt
+  // A mesma pizza do mesmo tamanho devem estar juntas, só separa se forem de tamanhos diferentes
+  // Para isso irei criar um identidicador, que é basicamente alguma string por exemplo a qual irá juntar o id da pizza com o tamanho dela
+
+  // Nessa variável irá juntar as informações, id da pizza e o tamanho dela
+  // Cocatenando o id da pizza com algum símbolo qualquer como por exemplo um '@', e depois o tamanho dela
+  let identifier = pizzaJson[modalKey].id + '@' + size
+
+  // Antes de adicionar (Antes do push), eu tenho que verificr se no carrinho eu já tenho outro item com o mesmo identificador, porque se tiver, não irá dar um push, irá simplesmente adicionar a quantidade naquele item que já tem
+
+  // Identificando se eu já tenho o item no meu carrinho
+  // Verificando o key do item e como parâmetro coloco o que ele irá procurar, no caso o identifier
+  // item, é cada item do meu carrinho
+  let key = cart.findIndex(item => {
+    // Dos identifier no carrihno, qual tem o mesmo identifier do meu, se achar, vai retornar o index dele, senão irá retornar -1
+    return item.identifier == identifier
   })
+
+  if (key > -1) {
+    // Se achou, irá aumentar a quantidade
+    // cart[key], para selecionar o item certo
+    // qr, quantidade
+    // modalQt, nova quantidade que eu quero adicionar
+    cart[key].qt += modalQt
+  } else {
+    // Se não achou, irá colocar no carrinho
+
+    // Adicionando ao Array do carrinho
+    cart.push({
+      // Adicionando o identificador que eu criei, no carrinho
+      identifier,
+      // Pegando o id no PizzaJson a que está no modalKey
+      id: pizzaJson[modalKey].id,
+      // Posso colocar size: size ou simplesmente size
+      size,
+      qt: modalQt
+    })
+  }
   // Depois de clicar em adicionar ao carrinho, o modal será fechado
+  // Mas antes de fechar, será feito uma atualização no carrinho, verificando se algo foi alterado no meu carrinho
+  // Neste caso a ordem não importa, pode atualizar antes e fechar depois ou ao contrário
+  updateCart()
   closeModal()
 })
+
+// Função que irá atualizar o carrinho de compras
+function updateCart() {
+  // Decidindo se mostra o carrinho ou não, como faz essa decisão, verificando quantos itens ou se tem itens no meu carrinho
+  if (cart.length > 0) {
+    qS('aside').classList.add('show')
+
+    // Pegando item a item para exibir na tela, podendo utilizar o cart ou o map, ambos irão funcionar
+    for (let i in cart) {
+      // Identificando qual é a pizza
+      // Procurando dentro do pizzaJson os itens que possuem o id fornecido
+      let pizzaItem = pizzaJson.find(item => {
+        //cart[i], selecionando o item específico do loop e .id que é o id do próprio carrinho
+        return (item.id == cart[i].id)
+      })
+      //console.log(pizzaItem)
+    }
+  } else {
+    qS('aside').classList.remove('show')
+  }
+}
