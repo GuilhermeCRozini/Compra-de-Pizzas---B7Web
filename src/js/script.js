@@ -234,11 +234,32 @@ qS('.pizzaInfo--addButton').addEventListener('click', () => {
   closeModal()
 })
 
+// Carrinho no Mobile
+qS('.menu-openner').addEventListener('click', () => {
+  // Só irá abrir quando tiver algo no carrinho
+  if (cart.length > 0) {
+    qS('aside').style.left = '0'
+  }
+})
+// Ação para fechar o carrinho no Mobile
+qS('.menu-closer').addEventListener('click', () => {
+  qS('aside').style.left = '100vw'
+})
+
 // Função que irá atualizar o carrinho de compras
 function updateCart() {
+  // Sempre que rodar esta função, o número indicando quantos tipos de itens o carrinho possui, será atualizado (header)
+  qS('.menu-openner span').innerHTML = cart.length
+
   // Decidindo se mostra o carrinho ou não, como faz essa decisão, verificando quantos itens ou se tem itens no meu carrinho
   if (cart.length > 0) {
     qS('aside').classList.add('show')
+
+    qS('.cart').innerHTML = ''
+
+    let subtotal = 0
+    let desconto = 0
+    let total = 0
 
     // Pegando item a item para exibir na tela, podendo utilizar o cart ou o map, ambos irão funcionar
     for (let i in cart) {
@@ -246,11 +267,76 @@ function updateCart() {
       // Procurando dentro do pizzaJson os itens que possuem o id fornecido
       let pizzaItem = pizzaJson.find(item => {
         //cart[i], selecionando o item específico do loop e .id que é o id do próprio carrinho
-        return (item.id == cart[i].id)
+        return item.id == cart[i].id
       })
       //console.log(pizzaItem)
+      // O preço da pizza vezes a quantidade que eu tenho no carrinho
+      subtotal += pizzaItem.price * cart[i].qt
+
+      let cartItem = qS('.models .cart--item').cloneNode(true)
+
+      /**
+       * Poderia deixar da seguinte forma:
+       * let pizzaSizeName = cart[i].size
+       * Mas nesse caso ficaria aparecendo entre 0 e 2 no tamanho, para ficar melhor de entender, quero que mostre P, M e G
+       */
+      let pizzaSizeName
+      switch (cart[i].size) {
+        case 0:
+          pizzaSizeName = 'P'
+          break
+        case 1:
+          pizzaSizeName = 'M'
+          break
+        case 2:
+          pizzaSizeName = 'G'
+          break
+      }
+
+      let pizzaName = `${pizzaItem.name} (${pizzaSizeName})`
+
+      // Carregando as informações no carrinho
+      cartItem.querySelector('img').src = pizzaItem.img
+      // No nome irei colocar o tamanho, porque não existe uma div específico para colocar
+      cartItem.querySelector('.cart--item-nome').innerHTML = pizzaName
+      // cart[i].qt, pegando do carrinho, a quantidade
+      cartItem.querySelector('.cart--item--qt').innerHTML = cart[i].qt
+      // Adicionando as funções dos botões + e -
+      cartItem
+        .querySelector('.cart--item-qtmenos')
+        .addEventListener('click', () => {
+          if (cart[i].qt > 1) {
+            cart[i].qt--
+          } else {
+            // Caso só tenha 1 e eu diminuir, irá retirar o item do meu carrinho
+            // Removendo o item do meu carrinho, e a quantidade de 1 item
+            cart.splice(i, 1)
+          }
+          updateCart()
+        })
+      cartItem
+        .querySelector('.cart--item-qtmais')
+        .addEventListener('click', () => {
+          cart[i].qt++
+          // Reatuliza o carrinho toda vez que apertar o botão + ou no botão - de algum item do meu carrinho
+          // Sempre que eu atualizar a quantidade do item dentro do carrinho, irá por consequência atualizar tudo (Subtotal, Desconto, Total)
+          updateCart()
+        })
+
+      qS('.cart').append(cartItem)
     }
+
+    // Desconto é 10% do subtotal
+    desconto = subtotal * 0.1
+    total = subtotal - desconto
+
+    qS('.subtotal span:last-child').innerHTML = `R$ ${subtotal.toFixed(2)}`
+    qS('.desconto span:last-child').innerHTML = `R$ ${desconto.toFixed(2)}`
+    qS('.total span:last-child').innerHTML = `R$ ${total.toFixed(2)}`
   } else {
     qS('aside').classList.remove('show')
+
+    // No Mobile, quando diminuir a quantidade do item para 0, fecha o carrinho
+    qS('aside').style.left = '100vw'
   }
 }
